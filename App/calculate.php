@@ -2,6 +2,10 @@
 namespace App;
 
 require_once 'Infrastructure/sdbh.php';
+require_once 'Infrastructure/CurrencyExchange.php';
+
+
+use App\Infrastructure\CurrencyExchange;
 use App\Infrastructure\sdbh;
 
 class ProductRepository
@@ -77,11 +81,13 @@ class CalculateController
 {
     private $productRepository;
     private $priceCalculator;
+    private $currencyExchanger;
 
     public function __construct()
     {
         $this->productRepository = new ProductRepository();
         $this->priceCalculator = new PriceCalculator();
+        $this->currencyExchanger = new CurrencyExchange();
     }
 
     public function calculate()
@@ -99,16 +105,17 @@ class CalculateController
 
         $pricePerDay = $this->priceCalculator->getPricePerDay($product, $days);
         $totalPrice = $this->priceCalculator->calculateTotalPrice($product, $days, $selectedServices);
+        $priceInYuan =$this->currencyExchanger->convertRubToCny($totalPrice);
         if (empty($selectedServices)) {
             $response = [
                 "totalPrice" => $totalPrice,
-                "details" => "Выбрано: $days дней. Тариф: {$pricePerDay}р/сутки. Дополнительные услуги не выбраны."
+                "details" => "Выбрано: $days дней. Тариф: {$pricePerDay}р/сутки. Дополнительные услуги не выбраны. Цена в юанях: {$priceInYuan} ¥"
             ];
         } else {
             $servicePrice = $this->priceCalculator->calculateServicesPrice($selectedServices, 1);
             $response = [
                 "totalPrice" => $totalPrice,
-                "details" => "Выбрано: $days дней. Тариф: {$pricePerDay}р/сутки + {$servicePrice}р/сутки за дополнительные услуги."
+                "details" => "Выбрано: $days дней. Тариф: {$pricePerDay}р/сутки + {$servicePrice}р/сутки за дополнительные услуги. Цена в юанях: {$priceInYuan} ¥"
             ];
         }
         echo json_encode($response);

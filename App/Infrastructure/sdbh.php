@@ -1,5 +1,5 @@
 <?php
-namespace sdbh;
+namespace App\Infrastructure;
 /* Small DataBase Handler */
 class sdbh
 {
@@ -18,7 +18,7 @@ class sdbh
         $this->host = $settings['host'] ?: 'localhost';
         $this->dbname = $settings['dbname'] ?: 'test_a25';
         $this->user = $settings['user'] ?: 'root';
-        $this->pass = $settings['pass'] ?: '';
+        $this->pass = $settings['pass'] ?: 'root';
         $mysql_conn = mysqli_connect($this->host, $this->user, $this->pass, $this->dbname, $this->port);
 
         $this->sql_read = $mysql_conn;

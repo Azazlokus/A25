@@ -9,6 +9,7 @@ $dbh = new sdbh();
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet"/>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             crossorigin="anonymous"></script>
@@ -63,7 +64,9 @@ $dbh = new sdbh();
                 <button type="submit" class="btn btn-primary">Рассчитать</button>
             </form>
 
-            <h5>Итоговая стоимость: <span id="total-price"></span></h5>
+            <h5>Итоговая стоимость: <span id="total-price"></span>
+                <i class="fas fa-info-circle" id="info-icon" data-placement="right"></i>
+            </h5>
         </div>
     </div>
 </div>
@@ -74,12 +77,30 @@ $dbh = new sdbh();
         $("#form").submit(function(event) {
             event.preventDefault();
 
+            // Скрываем иконку перед каждым запросом
+            $('#info-icon').css('visibility', 'hidden');
+
             $.ajax({
                 url: 'App/calculate.php',
                 type: 'POST',
+                dataType: 'json',
                 data: $(this).serialize(),
                 success: function(response) {
-                    $("#total-price").text(response);
+                    if (response.error) {
+                        $("#total-price").text(response.error);
+                    } else {
+                        $("#total-price").text(response.totalPrice + " р.");
+                        $("#info-icon").css('visibility', 'visible');
+
+                        // Удаляем старый тултип, если он есть
+                        $('#info-icon').tooltip('dispose');
+
+                        // Добавляем новые данные для тултипа
+                        $('#info-icon').attr("title", response.details);
+
+                        // Инициализируем новый тултип
+                        $('#info-icon').tooltip().tooltip('show');
+                    }
                 },
                 error: function() {
                     $("#total-price").text('Ошибка при расчете');
@@ -87,6 +108,8 @@ $dbh = new sdbh();
             });
         });
     });
+
 </script>
+
 </body>
 </html>

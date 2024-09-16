@@ -26,39 +26,46 @@ class PriceCalculator
     public function calculateTotalPrice($product, $days, $selectedServices)
     {
         $price = $product['PRICE'];
-        $tarif = $product['TARIFF'];
+        $tariff = $product['TARIFF'];
 
-        $productPrice = $this->calculateProductPrice($price, $tarif, $days);
+        $productPrice = $this->calculateProductPrice($product, $days);
         $servicesPrice = $this->calculateServicesPrice($selectedServices, $days);
 
         return $productPrice + $servicesPrice;
     }
 
-    private function calculateProductPrice($basePrice, $tarifSerialized, $days)
+    private function calculateProductPrice($product, $days)
     {
-        $tarifs = unserialize($tarifSerialized);
-
-        if (!is_array($tarifs)) {
-            return $basePrice * $days;
-        }
-
-        $productPrice = $basePrice;
-        foreach ($tarifs as $dayCount => $tarifPrice) {
-            if ($days >= $dayCount) {
-                $productPrice = $tarifPrice;
-            }
-        }
+        $productPrice = $this->getPricePerDay($product, $days);
 
         return $productPrice * $days;
     }
 
-    private function calculateServicesPrice($selectedServices, $days)
+    public function calculateServicesPrice($selectedServices, $days)
     {
         $servicesPrice = 0;
         foreach ($selectedServices as $service) {
             $servicesPrice += (float)$service * $days;
         }
         return $servicesPrice;
+    }
+    public function getPricePerDay($product, $days)
+    {
+        $basePrice = $product['PRICE'];
+        $tariffs = unserialize($product['TARIFF']);
+
+        if (!is_array($tariffs)) {
+            return $basePrice;
+        }
+
+        $productPrice = $basePrice;
+        foreach ($tariffs as $dayCount => $tariffPrice) {
+            if ($days >= $dayCount) {
+                $productPrice = $tariffPrice;
+            }
+        }
+
+        return $productPrice;
     }
 }
 
@@ -86,8 +93,21 @@ class CalculateController
             return;
         }
 
+        $pricePerDay = $this->priceCalculator->getPricePerDay($product, $days);
         $totalPrice = $this->priceCalculator->calculateTotalPrice($product, $days, $selectedServices);
-        echo $totalPrice;
+        if (empty($selectedServices)) {
+            $response = [
+                "totalPrice" => $totalPrice,
+                "details" => "Выбрано: $days дней. Тариф: {$pricePerDay}р/сутки. Дополнительные услуги не выбраны."
+            ];
+        } else {
+            $servicePrice = $this->priceCalculator->calculateServicesPrice($selectedServices, 1);
+            $response = [
+                "totalPrice" => $totalPrice,
+                "details" => "Выбрано: $days дней. Тариф: {$pricePerDay}р/сутки + {$servicePrice}р/сутки за дополнительные услуги."
+            ];
+        }
+        echo json_encode($response);
     }
 
     private function getPostValue($key, $default)

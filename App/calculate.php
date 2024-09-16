@@ -2,7 +2,7 @@
 namespace App;
 
 require_once 'Infrastructure/sdbh.php';
-use sdbh\sdbh;
+use App\Infrastructure\sdbh;
 
 class ProductRepository
 {
@@ -58,7 +58,10 @@ class PriceCalculator
             return $basePrice;
         }
 
+        ksort($tariffs);
+
         $productPrice = $basePrice;
+
         foreach ($tariffs as $dayCount => $tariffPrice) {
             if ($days >= $dayCount) {
                 $productPrice = $tariffPrice;
@@ -67,6 +70,7 @@ class PriceCalculator
 
         return $productPrice;
     }
+
 }
 
 class CalculateController

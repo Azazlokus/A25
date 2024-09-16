@@ -2,7 +2,11 @@
 ini_set('display_errors', 0);
 ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
-require_once 'App/Infrastructure/sdbh.php'; use sdbh\sdbh;
+require_once __DIR__ . '/vendor/autoload.php'; // Эту строку нужно удалить
+
+require_once 'App/Infrastructure/sdbh.php';
+
+use App\Infrastructure\sdbh;
 $dbh = new sdbh();
 ?>
 <html>

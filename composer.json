@@ -1,6 +1,15 @@
 {
-    "require": {
-      "ext-mysqli": "*"
-
+  "require": {
+    "ext-mysqli": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "App/",
+      "App\\Application\\": "App/Application/",
+      "App\\Domain\\": "App/Domain/",
+      "App\\Infrastructure\\": "App/Infrastructure/",
+      "App\\Presentation\\": "App/Presentation/"
     }
+  }
 }

@@ -52,11 +52,11 @@ $dbh = new sdbh();
                     <div class="row">
                         <div class="col-md-6">
                             <label for="startDate" class="form-label">Дата начала аренды:</label>
-                            <input type="text" name="start_date" class="form-control" id="startDate" >
+                            <input type="text" name="start_date" class="form-control" id="startDate" required>
                         </div>
                         <div class="col-md-6">
                             <label for="endDate" class="form-label">Дата окончания аренды:</label>
-                            <input type="text" name="end_date" class="form-control" id="endDate" >
+                            <input type="text" name="end_date" class="form-control" id="endDate" required>
                         </div>
                     </div>
                 </div>

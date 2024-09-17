@@ -1,6 +1,6 @@
 <?php
 namespace App;
-require_once __DIR__ . '/CalculateController.php'; // Эту строку нужно удалить
+require_once __DIR__ . '/CalculateController.php';
 
 use App\CalculateController;
 

@@ -4,6 +4,7 @@ namespace App;
 require_once  './../vendor/autoload.php';
 
 use App\Infrastructure\CurrencyExchange;
+use DateTime;
 
 class CalculateController
 {
@@ -20,10 +21,11 @@ class CalculateController
 
     public function calculate()
     {
-        $days = $this->getPostValue('days', 0);
         $productId = $this->getPostValue('product', 0);
         $selectedServices = $this->getPostValue('services', []);
-
+        $startDate = $this->getPostValue('start_date', null);
+        $endDate = $this->getPostValue('end_date', null);
+        $days = $this->calculateDays($startDate, $endDate);
         $product = $this->productRepository->getProductById($productId);
 
         if (!$product) {
@@ -48,7 +50,12 @@ class CalculateController
         }
         echo json_encode($response);
     }
-
+    private function calculateDays($startDate, $endDate) {
+        $start = new DateTime($startDate);
+        $end = new DateTime($endDate);
+        $interval = $start->diff($end);
+        return $interval->days;
+    }
     private function getPostValue($key, $default)
     {
         return $_POST[$key] ?? $default;

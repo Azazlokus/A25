@@ -15,8 +15,11 @@ $dbh = new sdbh();
           crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             crossorigin="anonymous"></script>
+
 </head>
 <body>
 <div class="container">
@@ -45,8 +48,18 @@ $dbh = new sdbh();
                     </select>
                 <?php } ?>
 
-                <label for="customRange1" class="form-label" id="count">Количество дней:</label>
-                <input type="number" name="days" class="form-control" id="customRange1" min="1" max="30">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="startDate" class="form-label">Дата начала аренды:</label>
+                            <input type="text" name="start_date" class="form-control" id="startDate" >
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endDate" class="form-label">Дата окончания аренды:</label>
+                            <input type="text" name="end_date" class="form-control" id="endDate" >
+                        </div>
+                    </div>
+                </div>
 
                 <?php $services = unserialize($dbh->mselect_rows('a25_settings', ['set_key' => 'services'], 0, 1, 'id')[0]['set_value']);
                 if (is_array($services)) {
@@ -76,10 +89,26 @@ $dbh = new sdbh();
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>
 <script>
     $(document).ready(function() {
+        $(function() {
+            $("#startDate, #endDate").datepicker({
+                dateFormat: 'yy-mm-dd',
+                minDate: new Date(),
+                onSelect: function(selectedDate) {
+                    if (this.id === 'startDate') {
+                        var minDate = $(this).datepicker('getDate');
+                        minDate.setDate(minDate.getDate() + 1);
+                        $("#endDate").datepicker("option", "minDate", minDate);
+                    }
+                }
+            });
+        });
         $("#form").submit(function(event) {
             event.preventDefault();
+
 
             // Скрываем иконку перед каждым запросом
             $('#info-icon').css('visibility', 'hidden');

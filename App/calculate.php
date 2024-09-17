@@ -105,7 +105,7 @@ class CalculateController
 
         $pricePerDay = $this->priceCalculator->getPricePerDay($product, $days);
         $totalPrice = $this->priceCalculator->calculateTotalPrice($product, $days, $selectedServices);
-        $priceInYuan =$this->currencyExchanger->convertRubToCny($totalPrice);
+        $priceInYuan =$this->currencyExchanger->convertRubTo($totalPrice, 'CNY');
         if (empty($selectedServices)) {
             $response = [
                 "totalPrice" => $totalPrice,

@@ -4,10 +4,10 @@ ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 require_once __DIR__ . '/vendor/autoload.php';
 
-require_once 'App/Infrastructure/sdbh.php';
-
-use App\Infrastructure\sdbh;
-$dbh = new sdbh();
+use App\Infrastructure\DataAdapter;
+$dataAdapter = new DataAdapter();
+$services = $dataAdapter->getServices();
+$products = $dataAdapter->getProducts();
 ?>
 <html>
 <head>
@@ -34,7 +34,7 @@ $dbh = new sdbh();
         <div class="col-12">
             <form action="App/calculate.php" method="POST" id="form">
 
-                <?php $products = $dbh->make_query('SELECT * FROM a25_products');
+                <?php
                 if (is_array($products)) { ?>
                     <label class="form-label" for="product">Выберите продукт:</label>
                     <select class="form-select" name="product" id="product">
@@ -61,7 +61,7 @@ $dbh = new sdbh();
                     </div>
                 </div>
 
-                <?php $services = unserialize($dbh->mselect_rows('a25_settings', ['set_key' => 'services'], 0, 1, 'id')[0]['set_value']);
+                <?php
                 if (is_array($services)) {
                     ?>
                     <label for="customRange1" class="form-label">Дополнительно:</label>

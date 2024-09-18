@@ -1,10 +1,8 @@
 <?php
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
-error_reporting(E_ALL);
 require_once __DIR__ . '/vendor/autoload.php';
 
 use App\Infrastructure\DataAdapter;
+
 $dataAdapter = new DataAdapter();
 $services = $dataAdapter->getServices();
 $products = $dataAdapter->getProducts();

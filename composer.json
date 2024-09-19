@@ -10,6 +10,7 @@
       "App\\Application\\": "App/Application/",
       "App\\Application\\Controllers\\": "App/Application/Controllers",
       "App\\Domain\\Users\\": "App/Domain/Users",
+      "App\\Domain\\Calculators\\": "App/Domain/Calculators",
       "App\\Domain\\": "App/Domain/",
       "App\\Infrastructure\\": "App/Infrastructure/",
       "App\\Presentation\\": "App/Presentation/"

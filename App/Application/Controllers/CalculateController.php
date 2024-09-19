@@ -1,8 +1,8 @@
 <?php
 
-namespace App;
-require_once  './../vendor/autoload.php';
+namespace App\Application\Controllers;
 
+use App\Domain\Calculators\PriceCalculator;
 use App\Infrastructure\CurrencyExchange;
 use App\Infrastructure\DataAdapter;
 use DateTime;

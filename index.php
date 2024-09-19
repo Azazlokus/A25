@@ -104,12 +104,20 @@ $products = $dataAdapter->getProducts();
                 }
             });
         });
+
         $("#form").submit(function(event) {
             event.preventDefault();
 
-
-            // Скрываем иконку перед каждым запросом
             $('#info-icon').css('visibility', 'hidden');
+
+            var startDate = $("#startDate").datepicker("getDate");
+            var endDate = $("#endDate").datepicker("getDate");
+
+            if (startDate >= endDate) {
+                $("#total-price").text("начальная дата должна быть меньше конечной");
+                return;
+            }
+
 
             $.ajax({
                 url: 'App/calculate.php',
@@ -123,13 +131,10 @@ $products = $dataAdapter->getProducts();
                         $("#total-price").text(response.totalPrice + " р.");
                         $("#info-icon").css('visibility', 'visible');
 
-                        // Удаляем старый тултип, если он есть
                         $('#info-icon').tooltip('dispose');
 
-                        // Добавляем новые данные для тултипа
                         $('#info-icon').attr("title", response.details);
 
-                        // Инициализируем новый тултип
                         $('#info-icon').tooltip().tooltip('show');
                     }
                 },
@@ -139,8 +144,8 @@ $products = $dataAdapter->getProducts();
             });
         });
     });
-
 </script>
+
 
 </body>
 </html>

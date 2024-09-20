@@ -55,6 +55,7 @@ class CalculateController
                 "details" => "Выбрано: $days $daysLabel. Тариф: {$pricePerDay}р/сутки + {$servicePrice}р/сутки за дополнительные услуги. Цена в юанях: {$priceInYuan} ¥"
             ];
         }
+        $response += ["orderData" => "Совершен заказ. Количество дней: $days. Общая цена: $totalPrice. Цена в юанях: $priceInYuan"];
 
         echo json_encode($response);
     }

@@ -17,7 +17,6 @@ $products = $dataAdapter->getProducts();
     <link rel="stylesheet" href="/resources/demos/style.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             crossorigin="anonymous"></script>
-
 </head>
 <body>
 <div class="container">
@@ -73,7 +72,7 @@ $products = $dataAdapter->getProducts();
                                 <?= $k ?>: <?= $s ?>
                             </label>
                         </div>
-                    <?php $index++; } ?>
+                        <?php $index++; } ?>
                 <?php } ?>
 
                 <button type="submit" class="btn btn-primary">Рассчитать</button>
@@ -82,13 +81,39 @@ $products = $dataAdapter->getProducts();
             <h5>Итоговая стоимость: <span id="total-price"></span>
                 <i class="fas fa-info-circle" id="info-icon" data-placement="right"></i>
             </h5>
+
+            <button type="button" class="btn btn-success" id="leave-request-btn" style="display: none;">Оставить заявку</button>
+
+            <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="requestModalLabel">Оставить заявку</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="request-form">
+                                <div class="mb-3">
+                                    <label for="phone-number" class="form-label">Номер телефона:</label>
+                                    <input type="text" class="form-control" id="phone-number" name="phone_number" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Оставить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
 
+<!-- Скрипты -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
 <script>
     $(document).ready(function() {
         $(function() {
@@ -118,7 +143,6 @@ $products = $dataAdapter->getProducts();
                 return;
             }
 
-
             $.ajax({
                 url: 'App/calculate.php',
                 type: 'POST',
@@ -136,6 +160,12 @@ $products = $dataAdapter->getProducts();
                         $('#info-icon').attr("title", response.details);
 
                         $('#info-icon').tooltip().tooltip('show');
+
+                        // Показать кнопку "Оставить заявку"
+                        $('#leave-request-btn').show();
+
+                        // Сохранить данные заказа для отправки заявки
+                        window.orderData = response.orderData;
                     }
                 },
                 error: function() {
@@ -143,9 +173,48 @@ $products = $dataAdapter->getProducts();
                 }
             });
         });
+
+        // Маска для ввода номера телефона
+        $('#phone-number').mask('+7 (999) 999-99-99');
+
+        // Открыть модальное окно при клике на кнопку "Оставить заявку"
+        $('#leave-request-btn').click(function() {
+            $('#requestModal').modal('show');
+        });
+
+        // Отправка заявки
+        $('#request-form').submit(function(event) {
+            event.preventDefault();
+
+            var phoneNumber = $('#phone-number').val();
+
+            var requestData = {
+                phone_number: phoneNumber,
+                order_data: window.orderData
+            };
+
+            $.ajax({
+                url: 'App/send_order.php',
+                type: 'POST',
+                dataType: 'json',
+                data: requestData,
+                success: function(response) {
+                    if (response.success) {
+                        alert('Заявка успешно отправлена!');
+                        $('#requestModal').modal('hide');
+                    } else {
+                        alert('Ошибка при отправке заявки: ' + response.error);
+                    }
+                },
+                error: function() {
+                    alert('Ошибка при отправке заявки.');
+                    console.log("Ошибка AJAX-запроса:", textStatus, errorThrown);
+                    console.log("Ответ сервера:", jqXHR.responseText);
+                }
+            });
+        });
     });
 </script>
-
 
 </body>
 </html>

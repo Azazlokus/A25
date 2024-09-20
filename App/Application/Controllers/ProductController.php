@@ -3,7 +3,8 @@ namespace App\Application\Controllers;
 
 
 require_once '../../../vendor/autoload.php';
-use App\Application\AdminService;
+
+use App\Application\Services\AdminService;
 use App\Domain\Users\UserEntity;
 
 class ProductController

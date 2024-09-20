@@ -45,18 +45,19 @@ $products = $dataAdapter->getProducts();
                     </select>
                 <?php } ?>
 
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-6">
+                <div class="container p-0">
+                    <div class="row mx-0">
+                        <div class="col-md-6 px-0 pe-2">
                             <label for="startDate" class="form-label">Дата начала аренды:</label>
                             <input type="text" name="start_date" class="form-control" id="startDate" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 px-0 ps-2">
                             <label for="endDate" class="form-label">Дата окончания аренды:</label>
                             <input type="text" name="end_date" class="form-control" id="endDate" required>
                         </div>
                     </div>
                 </div>
+
 
                 <?php
                 if (is_array($services)) {

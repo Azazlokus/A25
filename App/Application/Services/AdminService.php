@@ -1,5 +1,5 @@
 <?php
-namespace App\Application;
+namespace App\Application\Services;
 
 
 use App\Domain\Users\UserEntity;

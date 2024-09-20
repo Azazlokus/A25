@@ -2,7 +2,7 @@
 
 namespace App\Infrastructure;
 
-class CurrencyExchange
+class CurrencyExchanger
 {
     private $apiUrl = 'https://www.cbr-xml-daily.ru/daily_json.js';
 

@@ -4,6 +4,7 @@ namespace App\Application\Services;
 
 use App\Domain\Users\UserEntity;
 use App\Infrastructure\sdbh;
+use Exception;
 
 class AdminService {
 
@@ -19,13 +20,13 @@ class AdminService {
         $this->db = new sdbh();
     }
 
-    public function addNewProduct($name, $price)
+    public function addNewProduct($name, $price, $tariffs)
     {
         try {
             $name = $this->db->escape_string($name);
             $price = (float)$price;
 
-            $query = "INSERT INTO a25_products (NAME, PRICE) VALUES ('$name', '$price')";
+            $query = "INSERT INTO a25_products (NAME, PRICE, TARIFF) VALUES ('$name', '$price', '$tariffs')";
             $result = $this->db->make_query($query);
 
             if (is_numeric($result) && $result > 0) {
@@ -33,7 +34,7 @@ class AdminService {
             } else {
                 return ['success' => false, 'message' => 'Ошибка при добавлении продукта.'];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
         }
     }
@@ -49,7 +50,24 @@ class AdminService {
             } else {
                 return ['success' => false, 'message' => 'Ошибка при получении списка продуктов.'];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
+        }
+    }
+    public function getProduct($id): array
+    {
+        try {
+            $id = intval($id);
+
+            $query = "SELECT * FROM a25_products WHERE id = {$id}";
+            $result = $this->db->make_query($query);
+
+            if (is_array($result)) {
+                return ['success' => true, 'data' => $result];
+            } else {
+                return ['success' => false, 'message' => 'Ошибка при получении списка продуктов.'];
+            }
+        } catch (Exception $e) {
             return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
         }
     }
@@ -66,7 +84,7 @@ class AdminService {
             } else {
                 return ['success' => false, 'message' => 'Ошибка при удалении продукта.'];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
         }
     }
@@ -85,7 +103,7 @@ class AdminService {
             } else {
                 return ['success' => false, 'message' => 'Ошибка при обновлении продукта.'];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
         }
     }

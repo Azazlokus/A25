@@ -1,4 +1,4 @@
-<<?php
+<?php
 require_once 'vendor/autoload.php';
 use App\Domain\Users\UserEntity;
 
@@ -41,6 +41,14 @@ if (!$user->isAdmin) die('Доступ закрыт');
                     <label for="productPrice" class="form-label">Цена</label>
                     <input type="number" class="form-control" id="productPrice" name="price" required>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Тарифы</label>
+                    <div id="tariffsContainer">
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="addTariffBtn">Добавить тариф</button>
+                </div>
+
                 <button type="submit" class="btn btn-primary">Добавить продукт</button>
             </form>
         </div>
@@ -96,17 +104,54 @@ if (!$user->isAdmin) die('Доступ закрыт');
 </div>
 <script>
     $(document).ready(function() {
+        document.getElementById('addTariffBtn').addEventListener('click', function() {
+            const existingDays = Array.from(document.getElementsByName('tariffDays[]')).map(input => input.value);
+
+            const tariffsContainer = document.getElementById('tariffsContainer');
+            const newTariff = document.createElement('div');
+            newTariff.classList.add('row', 'mb-2');
+
+            newTariff.innerHTML = `
+            <div class="col-md-5">
+                <input type="number" class="form-control" name="tariffDays[]" placeholder="Количество дней" required oninput="checkUniqueness(this)">
+            </div>
+            <div class="col-md-5">
+                <input type="number" class="form-control" name="tariffPrice[]" placeholder="Цена тарифа" required>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-danger remove-tariff-btn">Удалить</button>
+            </div>
+        `;
+
+            tariffsContainer.appendChild(newTariff);
+        });
+
+        // Функция для проверки уникальности 'Количество дней'
+        window.checkUniqueness = function(input) {
+            const allDays = Array.from(document.getElementsByName('tariffDays[]')).map(input => input.value);
+            if (new Set(allDays).size !== allDays.length) { // Проверяем уникальность через Set
+                input.setCustomValidity('Количество дней должно быть уникальным');
+                input.reportValidity();
+            } else {
+                input.setCustomValidity(''); // Сброс предупреждения
+            }
+        };
+
+        $(document).on('click', '.remove-tariff-btn', function () {
+            $(this).closest('.row').remove();
+        });
+
         function loadProducts() {
             $.ajax({
                 url: 'ProductController.php?action=get',
                 type: 'GET',
                 dataType: 'json',
-                success: function(response) {
-                    if(response.success) {
+                success: function (response) {
+                    if (response.success) {
                         var products = response.data;
                         var tbody = $('#productsTable tbody');
                         tbody.empty();
-                        $.each(products, function(index, product) {
+                        $.each(products, function (index, product) {
                             tbody.append('<tr>' +
                                 '<td>' + product.ID + '</td>' +
                                 '<td>' + product.NAME + '</td>' +
@@ -122,29 +167,34 @@ if (!$user->isAdmin) die('Доступ закрыт');
                         alert(response.message);
                     }
                 },
-                error: function() {
+                error: function () {
                     alert('Ошибка при загрузке продуктов.');
                 }
             });
         }
 
-        // Загрузка списка продуктов при загрузке страницы
+
         loadProducts();
 
-        // Обработка отправки формы добавления продукта
         $('#addProductForm').submit(function(e) {
             e.preventDefault();
-            var formData = $(this).serialize();
+
+            // Создаем объект FormData
+            var formData = new FormData(this);
+
             $.ajax({
                 url: 'ProductController.php?action=add',
                 type: 'POST',
+                processData: false,  // не обрабатываем данные jQuery
+                contentType: false,  // не устанавливаем тип содержимого, так как это делает FormData
                 data: formData,
                 dataType: 'json',
                 success: function(response) {
-                    if(response.success) {
+                    if (response.success) {
                         alert(response.message);
                         $('#addProductForm')[0].reset();
-                        loadProducts();
+                        $('#tariffsContainer').empty(); // Очистка добавленных тарифов
+                        loadProducts(); // Перезагружаем список продуктов
                     } else {
                         alert(response.message);
                     }
@@ -179,10 +229,8 @@ if (!$user->isAdmin) die('Доступ закрыт');
             }
         });
 
-        // Обработка клика по кнопке редактирования продукта
         $(document).on('click', '.edit-product', function() {
             var id = $(this).data('id');
-            // Получаем данные продукта для заполнения формы редактирования
             $.ajax({
                 url: 'ProductController.php?action=getProduct',
                 type: 'GET',

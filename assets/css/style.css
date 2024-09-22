@@ -12,3 +12,6 @@ h1{
 #info-icon {
     visibility: hidden;
 }
+.btn {
+    width: 200px;
+}

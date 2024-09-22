@@ -109,7 +109,6 @@ if (!$user->isAdmin) die('Доступ закрыт');
                         <label for="editProductPrice" class="form-label">Цена</label>
                         <input type="number" class="form-control" id="editProductPrice" name="price" required>
                     </div>
-                    <!-- Добавьте другие поля, если необходимо -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>

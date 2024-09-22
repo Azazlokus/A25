@@ -3,6 +3,10 @@
 namespace App\Infrastructure\Repositories;
 use App\Application\Controllers\ProductController;
 use App\Infrastructure\sdbh;
+use App\Infrastructure\sdbh_dead_replicas;
+use App\Infrastructure\sdbh_exception;
+use Exception;
+
 class ProductRepository
 {
     private $db;
@@ -36,16 +40,6 @@ class ProductRepository
         return $result;
     }
 
-    /**
-     * Получает самую дорогую и самую дешёвую дополнительную услугу.
-     * @return array
-     */
-    public function getMinMaxTariff(): array
-    {
-        $query = "SELECT MIN(TARIFF) as min_tariff, MAX(TARIFF) as max_tariff FROM a25_products";
-        $result = $this->db->make_query($query);
 
-        return $result;
-    }
 
 }

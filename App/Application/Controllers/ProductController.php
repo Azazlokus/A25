@@ -6,6 +6,7 @@ require_once '../../../vendor/autoload.php';
 
 use App\Application\Services\AdminService;
 use App\Domain\Users\UserEntity;
+use App\Infrastructure\sdbh_dead_replicas;
 
 class ProductController
 {
@@ -46,6 +47,9 @@ class ProductController
                 break;
             case 'getStatistics':
                 $this->getStatistics();
+                break;
+            case 'search':
+                $this->search();
                 break;
             default:
                 header('HTTP/1.1 400 Bad Request');
@@ -123,6 +127,27 @@ class ProductController
         } catch (\Exception $e) {
             error_log($e->getMessage());
             echo json_encode(['success' => false, 'message' => 'Ошибка при получении статистики.']);
+        }
+    }
+
+    /**
+     * @throws sdbh_dead_replicas
+     */
+    public function search()
+    {
+        $productName = $_GET['name'] ?? ''; // Получение имени продукта из запроса
+
+        if (empty($productName)) {
+            echo json_encode(['success' => false, 'message' => 'Название продукта не указано']);
+            return;
+        }
+
+        $products = $this->adminService->searchProductsByName($productName);
+
+        if (empty($products)) {
+            echo json_encode(['success' => false, 'message' => 'Продукт не найден']);
+        } else {
+            echo json_encode(['success' => true, 'data' => $products]);
         }
     }
 }

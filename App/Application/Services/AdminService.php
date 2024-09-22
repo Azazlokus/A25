@@ -98,7 +98,7 @@ class AdminService {
         try {
             $id = (int)$id;
             $name = $this->db->escape_string($name);
-            $price = (float)$price;
+            $price = (int)$price;
 
             $query = "UPDATE a25_products SET NAME = '$name', PRICE = '$price' WHERE ID = $id";
             $result = $this->db->make_query($query);
@@ -130,37 +130,30 @@ class AdminService {
         return [
             'productCount' => $productCount,
             'productsWithoutTariff' => $productsWithoutTariffNames,
-            'minService' => $minMaxTariff['minService'],  // Самая дешевая услуга
-            'maxService' => $minMaxTariff['maxService'],  // Самая дорогая услуга
+            'minService' => $minMaxTariff['minService'],
+            'maxService' => $minMaxTariff['maxService'],
             'earliestTariffChangeProduct' => $earliestProduct,
         ];
     }
 
     private function getEarliestTariffChangeProduct()
     {
-        // Получаем все продукты из репозитория
         $products = $this->productRepository->getAllProducts();
 
         $earliestProduct = null;
-        $earliestDays = []; // Массив для сравнения всех дней изменения тарифа
+        $earliestDays = [];
 
         foreach ($products as $product) {
             if (!empty($product['TARIFF'])) {
-                // Десериализуем тариф
                 $tariffs = unserialize($product['TARIFF']);
 
-                // Проверяем, что тарифы корректны (являются массивом)
                 if (is_array($tariffs) && count($tariffs) > 1) {
-                    // Получаем ключи (дни изменения тарифов)
                     $days = array_keys($tariffs);
 
-                    // Убираем первый элемент (нулевой день)
                     array_shift($days);
 
-                    // Сортируем дни для правильного сравнения
                     sort($days);
 
-                    // Если это первый продукт или найден продукт с более ранними изменениями
                     if (empty($earliestDays) || $this->compareTariffChanges($earliestDays, $days)) {
                         $earliestDays = $days;
                         $earliestProduct = $product;
@@ -188,20 +181,16 @@ class AdminService {
     }
     public function getMinMaxServices(): array
     {
-        // Получаем все настройки (услуги) из репозитория
         $settings = $this->settingsRepository->getAllSettings();
 
         $services = [];
         foreach ($settings as $setting) {
-            // Проверяем, что это настройки услуг
             if ($setting['set_key'] === 'services') {
-                // Десериализуем строку с услугами
                 $services = unserialize($setting['set_value']);
-                break;  // Прекращаем цикл, как только нашли нужные услуги
+                break;
             }
         }
 
-        // Если услуг нет, возвращаем null
         if (empty($services)) {
             return [
                 'minService' => null,
@@ -209,14 +198,12 @@ class AdminService {
             ];
         }
 
-        // Инициализируем переменные для самой дешевой и самой дорогой услуг
         $minService = null;
         $maxService = null;
 
         $minPrice = PHP_INT_MAX;
         $maxPrice = PHP_INT_MIN;
 
-        // Проходим по каждой услуге и находим самую дешевую и самую дорогую
         foreach ($services as $serviceName => $servicePrice) {
             if ($servicePrice < $minPrice) {
                 $minPrice = $servicePrice;
@@ -234,7 +221,18 @@ class AdminService {
             'maxService' => $maxService,
         ];
     }
+    public function searchProductsByName($name)
+    {
+        $allProducts = $this->productRepository->getAllProducts();
 
-}
-$s = new AdminService();
-$s->getStatistics();
+        foreach ($allProducts as $product) {
+            if (stripos(strtolower($product['NAME']), strtolower($name)) !== false) {
+                return $product;
+            }
+        }
+
+        return null;
+    }
+
+}$s = new AdminService();
+$s->searchProductsByName('Тарелочка 1');

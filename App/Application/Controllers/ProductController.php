@@ -44,6 +44,9 @@ class ProductController
             case 'update':
                 $this->updateProduct();
                 break;
+            case 'getStatistics':
+                $this->getStatistics();
+                break;
             default:
                 header('HTTP/1.1 400 Bad Request');
                 echo json_encode(['success' => false, 'message' => 'Неверное действие.']);
@@ -111,7 +114,18 @@ class ProductController
 
         echo json_encode($result);
     }
-}
+    public function getStatistics()
+    {
+        try {
+            $result = $this->adminService->getStatistics();
 
-$controller = new ProductController();
-$controller->handleRequest();
+            echo json_encode(['success' => true, 'data' => $result]);
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Ошибка при получении статистики.']);
+        }
+    }
+}
+$productController = new ProductController();
+$productController->handleRequest();
+

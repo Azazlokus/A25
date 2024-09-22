@@ -1,5 +1,6 @@
 <?php
 require_once 'vendor/autoload.php';
+
 use App\Domain\Users\UserEntity;
 
 $user = new UserEntity();
@@ -23,12 +24,19 @@ if (!$user->isAdmin) die('Доступ закрыт');
 <body>
 <div class="container">
     <div class="row row-header">
-        <div class="col-12" id="count">
+        <div class="col-8" id="count">
             <img src="assets/img/logo.png" alt="logo" style="max-height:50px"/>
             <h1>Панель администратора</h1>
         </div>
+        <div class="col-4">
+            <div class="d-flex align-items-center">
+                <input type="text" class="form-control" id="searchName" name="searchName"
+                       placeholder="Поиск продукта по названию" required>
+                <button type="button" id="searchButton" class="btn btn-primary ms-2">Поиск</button>
+            </div>
+        </div>
+
     </div>
-    <!-- Форма для добавления нового продукта -->
     <div class="row">
         <div class="col-12">
             <h2>Добавить новый продукт</h2>
@@ -53,7 +61,16 @@ if (!$user->isAdmin) die('Доступ закрыт');
             </form>
         </div>
     </div>
-    <!-- Таблица со списком продуктов -->
+    <div class="row">
+        <div class="col-6">
+            <h3>Статистика продуктов</h3>
+            <p>Количество продуктов: <span id="productCount"></span></p>
+            <p>Продукты без тарифа: <span id="productsWithoutTariff"></span></p>
+            <p>Самая дорогая услуга: <span id="maxService"></span></p>
+            <p>Самая дешевая услуга: <span id="minService"></span></p>
+            <p>Продукт с самым ранним изменением тарифа: <span id="earliestTariffChange"></span></p>
+        </div>
+    </div>
     <div class="row">
         <div class="col-12">
             <h2>Список продуктов</h2>
@@ -103,8 +120,8 @@ if (!$user->isAdmin) die('Доступ закрыт');
     </div>
 </div>
 <script>
-    $(document).ready(function() {
-        document.getElementById('addTariffBtn').addEventListener('click', function() {
+    $(document).ready(function () {
+        document.getElementById('addTariffBtn').addEventListener('click', function () {
             const existingDays = Array.from(document.getElementsByName('tariffDays[]')).map(input => input.value);
 
             const tariffsContainer = document.getElementById('tariffsContainer');
@@ -127,7 +144,7 @@ if (!$user->isAdmin) die('Доступ закрыт');
         });
 
         // Функция для проверки уникальности 'Количество дней'
-        window.checkUniqueness = function(input) {
+        window.checkUniqueness = function (input) {
             const allDays = Array.from(document.getElementsByName('tariffDays[]')).map(input => input.value);
             if (new Set(allDays).size !== allDays.length) { // Проверяем уникальность через Set
                 input.setCustomValidity('Количество дней должно быть уникальным');
@@ -176,7 +193,7 @@ if (!$user->isAdmin) die('Доступ закрыт');
 
         loadProducts();
 
-        $('#addProductForm').submit(function(e) {
+        $('#addProductForm').submit(function (e) {
             e.preventDefault();
 
             // Создаем объект FormData
@@ -185,11 +202,11 @@ if (!$user->isAdmin) die('Доступ закрыт');
             $.ajax({
                 url: 'ProductController.php?action=add',
                 type: 'POST',
-                processData: false,  // не обрабатываем данные jQuery
-                contentType: false,  // не устанавливаем тип содержимого, так как это делает FormData
+                processData: false,
+                contentType: false,
                 data: formData,
                 dataType: 'json',
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         alert(response.message);
                         $('#addProductForm')[0].reset();
@@ -199,45 +216,44 @@ if (!$user->isAdmin) die('Доступ закрыт');
                         alert(response.message);
                     }
                 },
-                error: function() {
+                error: function () {
                     alert('Ошибка при добавлении продукта.');
                 }
             });
         });
 
-        // Обработка клика по кнопке удаления продукта
-        $(document).on('click', '.delete-product', function() {
+        $(document).on('click', '.delete-product', function () {
             var id = $(this).data('id');
-            if(confirm('Вы уверены, что хотите удалить этот продукт?')) {
+            if (confirm('Вы уверены, что хотите удалить этот продукт?')) {
                 $.ajax({
                     url: 'ProductController.php?action=delete',
                     type: 'POST',
-                    data: { id: id },
+                    data: {id: id},
                     dataType: 'json',
-                    success: function(response) {
-                        if(response.success) {
+                    success: function (response) {
+                        if (response.success) {
                             alert(response.message);
                             loadProducts();
                         } else {
                             alert(response.message);
                         }
                     },
-                    error: function() {
+                    error: function () {
                         alert('Ошибка при удалении продукта.');
                     }
                 });
             }
         });
 
-        $(document).on('click', '.edit-product', function() {
+        $(document).on('click', '.edit-product', function () {
             var id = $(this).data('id');
             $.ajax({
                 url: 'ProductController.php?action=getProduct',
                 type: 'GET',
-                data: { id: id },
+                data: {id: id},
                 dataType: 'json',
-                success: function(response) {
-                    if(response.success) {
+                success: function (response) {
+                    if (response.success) {
                         var product = response.data;
                         $('#editProductId').val(product.ID);
                         $('#editProductName').val(product.NAME);
@@ -248,14 +264,13 @@ if (!$user->isAdmin) die('Доступ закрыт');
                         alert(response.message);
                     }
                 },
-                error: function() {
+                error: function () {
                     alert('Ошибка при получении данных продукта.');
                 }
             });
         });
 
-        // Обработка отправки формы редактирования продукта
-        $('#editProductForm').submit(function(e) {
+        $('#editProductForm').submit(function (e) {
             e.preventDefault();
             var formData = $(this).serialize();
             $.ajax({
@@ -263,8 +278,8 @@ if (!$user->isAdmin) die('Доступ закрыт');
                 type: 'POST',
                 data: formData,
                 dataType: 'json',
-                success: function(response) {
-                    if(response.success) {
+                success: function (response) {
+                    if (response.success) {
                         alert(response.message);
                         $('#editProductModal').modal('hide');
                         loadProducts();
@@ -272,12 +287,55 @@ if (!$user->isAdmin) die('Доступ закрыт');
                         alert(response.message);
                     }
                 },
-                error: function() {
+                error: function () {
                     alert('Ошибка при обновлении продукта.');
                 }
             });
         });
     });
+    $('#searchButton').click(function () {
+        var productName = $('#searchName').val();
+        if (productName.trim()) {
+            $.ajax({
+                url: 'ProductController.php?action=search',
+                type: 'GET',
+                data: {name: productName},
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        // Отображение данных продукта
+                        alert('Продукт: ' + response.data.NAME + ' Цена: ' + response.data.PRICE);
+                    } else {
+                        alert('Продукт не найден.');
+                    }
+                },
+                error: function () {
+                    alert('Ошибка при поиске продукта.');
+                }
+            });
+        }
+    });
+    $.ajax({
+        url: 'ProductController.php?action=getStatistics',
+        type: 'GET',
+        dataType: 'json',
+        success: function (response) {
+            if (response.success) {
+                $('#productCount').text(response.data.productCount);
+                $('#productsWithoutTariff').text(response.data.productsWithoutTariff);
+                $('#minService').text(response.data.minService);
+                $('#maxService').text(response.data.maxService);
+                $('#earliestTariffChange').text(response.data.earliestTariffChangeProduct.NAME);
+            } else {
+                alert('Ошибка при получении статистики: ' + response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX Error:', error);
+            alert('Ошибка при загрузке статистики.');
+        }
+    });
+
 </script>
 </body>
 </html>

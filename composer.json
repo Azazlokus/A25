@@ -15,6 +15,7 @@
       "App\\Domain\\Calculators\\": "App/Domain/Calculators",
       "App\\Domain\\": "App/Domain/",
       "App\\Infrastructure\\": "App/Infrastructure/",
+      "App\\Infrastructure\\Repositories": "App/Infrastructure/Repositories",
       "App\\Presentation\\": "App/Presentation/"
     }
   }

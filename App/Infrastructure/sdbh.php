@@ -1,5 +1,8 @@
 <?php
-namespace sdbh;
+namespace App\Infrastructure;
+
+
+use Dotenv\Dotenv;
 /* Small DataBase Handler */
 class sdbh
 {
@@ -12,14 +15,22 @@ class sdbh
     public $sql_read;
     public $sql_write;
 
-    function __construct(array $settings = [])
+    function __construct()
     {
-        $this->port = $settings['host'] ?: 3306;
-        $this->host = $settings['host'] ?: 'localhost';
-        $this->dbname = $settings['dbname'] ?: 'test_a25';
-        $this->user = $settings['user'] ?: 'root';
-        $this->pass = $settings['pass'] ?: '';
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+        $dotenv->load();
+
+        $this->host = $_ENV['DB_HOST'] ?? 'localhost';
+        $this->port = $_ENV['DB_PORT'] ?? 3306;
+        $this->dbname = $_ENV['DB_DATABASE'] ?? 'test_a25';
+        $this->user = $_ENV['DB_USERNAME'] ?? 'root';
+        $this->pass = $_ENV['DB_PASSWORD'] ?? 'root';
+
         $mysql_conn = mysqli_connect($this->host, $this->user, $this->pass, $this->dbname, $this->port);
+
+        if (!$mysql_conn) {
+            die('Ошибка подключения к базе данных: ' . mysqli_connect_error());
+        }
 
         $this->sql_read = $mysql_conn;
         $this->sql_write = false;

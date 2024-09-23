@@ -1,0 +1,22 @@
+{
+  "require": {
+    "ext-mysqli": "*",
+    "ext-json": "*",
+    "vlucas/phpdotenv": "^5.6",
+    "phpmailer/phpmailer": "^6.9"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "App/",
+      "App\\Application\\": "App/Application/",
+      "App\\Application\\Controllers\\": "App/Application/Controllers",
+      "App\\Application\\Services\\": "App/Application/Services",
+      "App\\Domain\\Users\\": "App/Domain/Users",
+      "App\\Domain\\Calculators\\": "App/Domain/Calculators",
+      "App\\Domain\\": "App/Domain/",
+      "App\\Infrastructure\\": "App/Infrastructure/",
+      "App\\Infrastructure\\Repositories": "App/Infrastructure/Repositories",
+      "App\\Presentation\\": "App/Presentation/"
+    }
+  }
+}
